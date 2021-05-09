@@ -13,7 +13,7 @@ require("dotenv").config();
 router.get("*", (req, res) => {
   return res.json({
     name: "BITCAO",
-    description: req.url,
+    description: req.headers,
     image: "ipfs://QmYD9AtzyQPjSa9jfZcZq88gSaRssdhGmKqQifUDjGFfXm/sleepy.png",
     attributes: {
       bunnyId: "5",
