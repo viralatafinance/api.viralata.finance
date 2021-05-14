@@ -55,7 +55,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
         referer: "https://www.cryptomoonwatch.com/",
         "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
       };
-      const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query, { headers });
+      const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query, { withCredentials: true, headers });
 
       if (cmwResult && cmwResult.data) {
         err += "cmw record found: " + cmwResult.data.msg + ";";
