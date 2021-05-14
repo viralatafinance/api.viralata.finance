@@ -9,10 +9,6 @@ const router = express.Router();
 const Web3 = require("web3");
 const crypto = require("crypto");
 const factoryAbi = require("./factory.json");
-const querystring = require("querystring");
-const axios = require("axios").default;
-const fetch = require("node-fetch");
-const FormData = require("form-data");
 const faunadb = require("faunadb"),
   q = faunadb.query;
 
@@ -34,46 +30,17 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
   if (!req.params.email || !req.params.wallet) {
     return res.json("invalid call");
   }
-  const fullstring = req.params.email.toLowerCase().toString();
-  let hash = crypto.createHash("md5").update(fullstring).digest("hex");
+
+  let hash = crypto.createHash("md5").update(req.params.email).digest("hex");
 
   let whitelisted = false;
   let voted = false;
-  let err = null;
   try {
     await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
     whitelisted = true;
     voted = true;
-    return res.json({ whitelisted, voted });
   } catch (ex) {}
-
-  let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": req.params.email }), option_id: 225952, poll_id: 939 });
-  axios
-    .post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query)
-    .then(function (result) {
-      if (result.data.msg == "You Already Voted For This Candidate!") {
-        voted = true;
-        client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
-        whitelisted = true;
-      } else {
-        voted = false;
-      }
-      res.json({ whitelisted, voted });
-    })
-    .catch((e) => {
-      const error = e.response.data;
-      const errorResponse = {
-        statusCode: error.status,
-        headers: {
-          "Access-Control-Allow-Origin": "*", // Required for CORS support to work
-          "Access-Control-Allow-Credentials": true, // Required for cookies, authorization headers with HTTPS
-        },
-        body: JSON.stringify({
-          message: error.title,
-        }),
-      };
-      res.json(e.response);
-    });
+  return res.json({ whitelisted, voted });
 });
 
 router.get("/testnet/nft/:id", async (req, res) => {
