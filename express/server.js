@@ -37,7 +37,8 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
     return res.json("invalid call");
   }
 
-  let hash = crypto.createHash("md5").update(req.params.email).digest("hex");
+  // let hash = crypto.createHash("md5").update(req.params.email).digest("hex");
+  let hash = req.params.email;
 
   let whitelisted = false;
   try {
