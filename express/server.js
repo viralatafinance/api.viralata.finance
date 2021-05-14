@@ -44,46 +44,36 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
     await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
     whitelisted = true;
     voted = true;
-    err += "db record found; ";
-  } catch (ex) {
-    err += "db record not found; ";
-  }
+    return res.json({ whitelisted, voted });
+  } catch (ex) {}
 
-  if (!whitelisted) {
-    try {
-      const form = new FormData();
-      form.append("action", "it_epoll_vote_by_form");
-      form.append("data", querystring.stringify({ "0c92": req.params.email }));
-      form.append("option_id", 225952);
-      form.append("poll_id", 939);
-
-      const response = await fetch("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", { method: "POST", body: form });
-      const data = await response.json();
-      
-      // let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": req.params.email }), option_id: 225952, poll_id: 939 });
-      // const headers = {
-      //   origin: "https://www.cryptomoonwatch.com",
-      //   referer: "https://www.cryptomoonwatch.com/",
-      //   "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
-      // };
-      // const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query, { withCredentials: true, headers });
-
-      if (response && data) {
-        err += "cmw record found: " + data.msg + ";";
-        if (data.msg == "You Already Voted For This Candidate!") {
-          voted = true;
-          await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
-          whitelisted = true;
-        } else {
-          voted = false;
-        }
+  let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": req.params.email }), option_id: 225952, poll_id: 939 });
+  axios
+    .post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query)
+    .then(function (result) {
+      if (result.data.msg == "You Already Voted For This Candidate!") {
+        voted = true;
+        client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
+        whitelisted = true;
+      } else {
+        voted = false;
       }
-    } catch (ex) {
-      err += "cmw error : " + ex.message + ";";
-      // err = ex.message;
-    }
-  }
-  res.json({ whitelisted, voted, err });
+      res.json({ whitelisted, voted });
+    })
+    .catch((e) => {
+      const error = e.response.data;
+      const errorResponse = {
+        statusCode: error.status,
+        headers: {
+          "Access-Control-Allow-Origin": "*", // Required for CORS support to work
+          "Access-Control-Allow-Credentials": true, // Required for cookies, authorization headers with HTTPS
+        },
+        body: JSON.stringify({
+          message: error.title,
+        }),
+      };
+      res.json(errorResponse);
+    });
 });
 
 router.get("/testnet/nft/:id", async (req, res) => {
