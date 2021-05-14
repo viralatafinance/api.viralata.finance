@@ -65,7 +65,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
       }
     } catch (ex) {
       err += "cmw error : " + ex.message + ";";
-      err = ex.message;
+     // err = ex.message;
     }
   }
   res.json({ whitelisted, voted, err });
