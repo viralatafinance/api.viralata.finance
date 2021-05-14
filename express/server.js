@@ -34,13 +34,17 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
   let hash = crypto.createHash("md5").update(req.params.email).digest("hex");
 
   let whitelisted = false;
-  let voted = false;
   try {
     await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
     whitelisted = true;
     voted = true;
   } catch (ex) {}
-  return res.json({ whitelisted, voted });
+
+  if (!whitelisted) {
+    await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: wallet } }));
+  }
+
+  return res.json({ whitelisted });
 });
 
 router.get("/testnet/nft/:id", async (req, res) => {
