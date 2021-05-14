@@ -37,11 +37,10 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
   try {
     await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
     whitelisted = true;
-    voted = true;
   } catch (ex) {}
 
   if (!whitelisted) {
-    await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: wallet } }));
+    await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
   }
 
   return res.json({ whitelisted });
