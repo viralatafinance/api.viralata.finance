@@ -1,1 +1,2 @@
 /nft/*  /.netlify/functions/server/nft/:splat
+/testnet/*  /.netlify/functions/server/testnet/:splat
