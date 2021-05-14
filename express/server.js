@@ -11,6 +11,8 @@ const crypto = require("crypto");
 const factoryAbi = require("./factory.json");
 const querystring = require("querystring");
 const axios = require("axios").default;
+const fetch = require("node-fetch");
+const FormData = require("form-data");
 const faunadb = require("faunadb"),
   q = faunadb.query;
 
@@ -49,17 +51,26 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
 
   if (!whitelisted) {
     try {
-      let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": req.params.email }), option_id: 225952, poll_id: 939 });
-      const headers = {
-        origin: "https://www.cryptomoonwatch.com",
-        referer: "https://www.cryptomoonwatch.com/",
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
-      };
-      const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query, { withCredentials: true, headers });
+      const form = new FormData();
+      form.append("action", "it_epoll_vote_by_form");
+      form.append("data", querystring.stringify({ "0c92": req.params.email }));
+      form.append("option_id", 225952);
+      form.append("poll_id", 939);
 
-      if (cmwResult && cmwResult.data) {
-        err += "cmw record found: " + cmwResult.data.msg + ";";
-        if (cmwResult.data.msg == "You Already Voted For This Candidate!") {
+      const response = await fetch("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", { method: "POST", body: form });
+      const data = await response.json();
+      
+      // let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": req.params.email }), option_id: 225952, poll_id: 939 });
+      // const headers = {
+      //   origin: "https://www.cryptomoonwatch.com",
+      //   referer: "https://www.cryptomoonwatch.com/",
+      //   "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+      // };
+      // const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query, { withCredentials: true, headers });
+
+      if (response && data) {
+        err += "cmw record found: " + data.msg + ";";
+        if (data.msg == "You Already Voted For This Candidate!") {
           voted = true;
           await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
           whitelisted = true;

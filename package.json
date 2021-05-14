@@ -33,6 +33,7 @@
     "form-data": "^4.0.0",
     "jsdom": "^16.5.3",
     "jsdom-global": "^3.0.2",
+    "node-fetch": "^2.6.1",
     "nodejs-base64": "^2.0.0",
     "querystring": "^0.2.1",
     "web3": "^3.0.0-rc.4"
