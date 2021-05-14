@@ -50,11 +50,15 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
   if (!whitelisted) {
     try {
       let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": req.params.email }), option_id: 225952, poll_id: 939 });
-      const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query);
+      const headers = {
+        origin: "https://www.cryptomoonwatch.com",
+        referer: "https://www.cryptomoonwatch.com/",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+      };
+      const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query, { headers });
 
       if (cmwResult && cmwResult.data) {
         err += "cmw record found: " + cmwResult.data.msg + ";";
-
         if (cmwResult.data.msg == "You Already Voted For This Candidate!") {
           voted = true;
           await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
@@ -65,7 +69,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
       }
     } catch (ex) {
       err += "cmw error : " + ex.message + ";";
-     // err = ex.message;
+      // err = ex.message;
     }
   }
   res.json({ whitelisted, voted, err });
