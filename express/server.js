@@ -20,7 +20,7 @@ require("dotenv").config();
 
 const NETWORK_URL = process.env.NETWORK_URL_MAINNET || process.env.NETWORK_URL_DEV_MAINNET;
 const NETWORK_URL_TESTNET = process.env.NETWORK_URL_TESTNET || process.env.NETWORK_URL_DEV_TESTNET;
-const FAUNA_DB = process.env.FAUNA_DB || process.env.FAUNA_DB_DEV;
+const FAUNA_DB = process.env.FAUNA_DB;
 
 const FACTORY_ADDR_MAINNET = "0xd7eC2C74808c1f15AdC9028E092A08D5d446b364";
 const FACTORY_ADDR_TESTNET = "0xd7eC2C74808c1f15AdC9028E092A08D5d446b364";
@@ -39,11 +39,14 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
 
   let whitelisted = false;
   let voted = false;
+  let err = null;
   try {
     await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
     whitelisted = true;
     voted = true;
-  } catch (ex) {}
+  } catch (ex) {
+    err = ex.message;
+  }
 
   if (!whitelisted) {
     try {
@@ -59,9 +62,11 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
           voted = false;
         }
       }
-    } catch (ex) {}
+    } catch (ex) {
+      err = ex.message;
+    }
   }
-  res.json({ whitelisted, voted });
+  res.json({ whitelisted, voted, err });
 });
 
 router.get("/testnet/nft/:id", async (req, res) => {
