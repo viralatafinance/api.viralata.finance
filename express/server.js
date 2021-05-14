@@ -36,7 +36,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
   if (!req.params.email || !req.params.wallet) {
     return res.json("invalid call");
   }
-  const fullstring = req.params.email.toLowerCase().toString() + req.params.wallet.toLowerCase().toString();
+  const fullstring = req.params.email.toLowerCase().toString();
   let hash = crypto.createHash("md5").update(fullstring).digest("hex");
 
   let whitelisted = false;
@@ -47,6 +47,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
     whitelisted = true;
     voted = true;
   } catch (ex) {
+   
   }
 
   if (!whitelisted) {
