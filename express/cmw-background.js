@@ -29,10 +29,10 @@ exports.handler = async function (event) {
   } catch (ex) {}
 
   if (whitelisted === false) {
-    let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": req.params.email }), option_id: 225952, poll_id: 939 });
+    let query = querystring.stringify({ action: "it_epoll_vote_by_form", data: querystring.stringify({ "0c92": email }), option_id: 225952, poll_id: 939 });
     let result = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query);
     if (result.data.msg == "You Already Voted For This Candidate!") {
-      await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
+      await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: wallet } }));
     }
   }
 };
