@@ -1,7 +1,6 @@
 "use strict";
 
 const express = require("express");
-const path = require("path");
 const serverless = require("serverless-http");
 const app = express();
 const bodyParser = require("body-parser");
@@ -10,7 +9,6 @@ const router = express.Router();
 const Web3 = require("web3");
 const crypto = require("crypto");
 const factoryAbi = require("./factory.json");
-const FormData = require("form-data");
 const querystring = require("querystring");
 const axios = require("axios").default;
 const faunadb = require("faunadb"),
@@ -28,11 +26,9 @@ const FACTORY_ADDR_TESTNET = "0xd7eC2C74808c1f15AdC9028E092A08D5d446b364";
 const web3 = new Web3(NETWORK_URL);
 const web3testnet = new Web3(NETWORK_URL_TESTNET);
 
+const client = new faunadb.Client({ secret: FAUNA_DB });
 
 router.get("/cmw/:email/:wallet", async (req, res) => {
-  
-  const client = new faunadb.Client({ secret: FAUNA_DB });
-
   if (!req.params.email || !req.params.wallet) {
     return res.json("invalid call");
   }
@@ -46,9 +42,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
     await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
     whitelisted = true;
     voted = true;
-  } catch (ex) {
-   
-  }
+  } catch (ex) {}
 
   if (!whitelisted) {
     try {
