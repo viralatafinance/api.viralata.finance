@@ -72,7 +72,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
           message: error.title,
         }),
       };
-      res.json(errorResponse);
+      res.json(e.response);
     });
 });
 
