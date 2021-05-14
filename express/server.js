@@ -42,7 +42,10 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
     await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
     whitelisted = true;
     voted = true;
-  } catch (ex) {}
+    err += "db record found; ";
+  } catch (ex) {
+    err += "db record not found; ";
+  }
 
   if (!whitelisted) {
     try {
@@ -50,6 +53,8 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
       const cmwResult = await axios.post("https://www.cryptomoonwatch.com/wp-admin/admin-ajax.php", query);
 
       if (cmwResult && cmwResult.data) {
+        err += "cmw record found: " + cmwResult.data.msg + ";";
+
         if (cmwResult.data.msg == "You Already Voted For This Candidate!") {
           voted = true;
           await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
@@ -59,6 +64,7 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
         }
       }
     } catch (ex) {
+      err += "cmw error : " + ex.message + ";";
       err = ex.message;
     }
   }
