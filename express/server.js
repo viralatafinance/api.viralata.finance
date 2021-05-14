@@ -28,9 +28,11 @@ const FACTORY_ADDR_TESTNET = "0xd7eC2C74808c1f15AdC9028E092A08D5d446b364";
 const web3 = new Web3(NETWORK_URL);
 const web3testnet = new Web3(NETWORK_URL_TESTNET);
 
-const client = new faunadb.Client({ secret: FAUNA_DB });
 
 router.get("/cmw/:email/:wallet", async (req, res) => {
+  
+  const client = new faunadb.Client({ secret: FAUNA_DB });
+
   if (!req.params.email || !req.params.wallet) {
     return res.json("invalid call");
   }
@@ -45,7 +47,6 @@ router.get("/cmw/:email/:wallet", async (req, res) => {
     whitelisted = true;
     voted = true;
   } catch (ex) {
-    err = ex.message;
   }
 
   if (!whitelisted) {
