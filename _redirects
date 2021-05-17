@@ -1,2 +1,1 @@
-/mainnet/*  /.netlify/functions/api/mainnet/:splat
-/testnet/*  /.netlify/functions/api/testnet/:splat
+/*  /.netlify/functions/api/
