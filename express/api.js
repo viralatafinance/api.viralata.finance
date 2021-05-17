@@ -7,8 +7,6 @@ const bodyParser = require("body-parser");
 const cors = require("cors");
 const router = express.Router();
 const Web3 = require("web3");
-const crypto = require("crypto");
-const path = require("path");
 const factoryAbi = require("./factory.json");
 const rateLimit = require("express-rate-limit");
 const faunadb = require("faunadb"),
@@ -20,8 +18,6 @@ const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
 });
-
-const mediaFolder = path.join(__dirname, "../media");
 
 const NETWORK_URL = process.env.NETWORK_URL_MAINNET || process.env.NETWORK_URL_DEV_MAINNET;
 const NETWORK_URL_TESTNET = process.env.NETWORK_URL_TESTNET || process.env.NETWORK_URL_DEV_TESTNET;
@@ -77,11 +73,11 @@ router.get("/nft/:id", async (req, res) => {
 });
 
 router.get("/vcr/cmw.json", function (req, res) {
-  res.sendFile(path.join(mediaFolder, "/vcr/cmw.json"));
+  res.sendFile(require.resolve('./media/vcr/cmw.json'));
 });
 
 router.get("/vcr/cmw.jpg", function (req, res) {
-  res.sendFile(path.join(mediaFolder, "/vcr/cmw.jpg"));
+  res.sendFile(require.resolve('./media/vcr/cmw.jpg'));
 });
 
 app.use(bodyParser.json());
