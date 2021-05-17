@@ -1,3 +1,2 @@
-/nft/*  /.netlify/functions/server/nft/:splat
-/testnet/*  /.netlify/functions/server/testnet/:splat
-/cmw/*  /.netlify/functions/server/cmw/:splat
+/mainnet/*  /.netlify/functions/api/mainnet/:splat
+/testnet/*  /.netlify/functions/api/testnet/:splat

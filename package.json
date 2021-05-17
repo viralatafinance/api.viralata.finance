@@ -23,6 +23,7 @@
   "homepage": "https://github.com/viralatafinance/api.viralata.finance#readme",
   "dependencies": {
     "abi-decoder": "^2.4.0",
+    "async-await-retry": "^1.2.1",
     "axios": "^0.21.1",
     "cheerio": "^1.0.0-rc.6",
     "cors": "^2.8.5",
