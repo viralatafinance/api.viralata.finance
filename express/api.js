@@ -36,25 +36,26 @@ const web3testnet = new Web3(NETWORK_URL_TESTNET);
 const client = new faunadb.Client({ secret: FAUNA_DB });
 
 router.get("/cmw/:email/:wallet", async (req, res) => {
-  if (!req.params.email || !req.params.wallet) {
-    return res.json("invalid call");
-  }
+  return false;
+  // if (!req.params.email || !req.params.wallet) {
+  //   return res.json("invalid call");
+  // }
 
-  // let hash = crypto.createHash("md5").update(req.params.email).digest("hex");
-  let hash = req.params.email;
+  // // let hash = crypto.createHash("md5").update(req.params.email).digest("hex");
+  // let hash = req.params.email;
 
-  let whitelisted = false;
-  try {
-    await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
-    whitelisted = true;
-  } catch (ex) {}
+  // let whitelisted = false;
+  // try {
+  //   await client.query(q.Get(q.Match(q.Index("cmw_by_hash"), hash)));
+  //   whitelisted = true;
+  // } catch (ex) {}
 
-  if (!whitelisted) {
-    await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
-    whitelisted = true;
-  }
+  // if (!whitelisted) {
+  //   await client.query(q.Create(q.Collection("cmw"), { data: { hash, wallet: req.params.wallet } }));
+  //   whitelisted = true;
+  // }
 
-  return res.json({ whitelisted });
+  // return res.json({ whitelisted });
 });
 
 router.get("/testnet/nft/:id", async (req, res) => {
