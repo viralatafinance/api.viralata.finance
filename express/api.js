@@ -186,7 +186,7 @@ router.get("/contest", async (req, res) => {
               href: results[r].href,
             };
           } else {
-            const imageIndex = parseInt(r.replace("#", "")) - 1;
+            let imageIndex = parseInt(r.replace("#", "")) - 1;
             if (imageIndex > 98) imageIndex --;
 
             results[r] = {
