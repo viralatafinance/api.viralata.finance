@@ -161,7 +161,7 @@ const contestImages = [
   "https://lh5.googleusercontent.com/EXMjv7BrmU-1HZ0Zm63GvfwceYoCqAUk6aTIt0y1Fw7MOFwpSO9sMJDJoQx944mGyuXGozMt2U5IOki9OvIlW6mCWTdNd8DubtOFrA3lXcaJtbGE8VLXTOh1Gr4rYi7ddEirnLiuAm-e0D5f",
   "https://lh4.googleusercontent.com/pX5MkrUP0baHc_5sb54MsO888QE22QyRxQz1nQwMQLlw_zTdmCz73ecahJYCcmwY5U2vexiFRWR_oRKVMX__SCC0vxIlL56mo7tpc31a524EuvtEIGcsxAoG6TIOMM1SCe8-Y9ho1Fp9-yfm",
   "https://lh5.googleusercontent.com/M-o4Cll71BYpLPoowRxrpjnUBgX6isFhX0hHUImPFM6Inx4feawPx8jI5HhqqNRd9fqYYNCP-FonEvIlqe9K9tIv7HYEKd47nEbx9wVHClV7rIzNkHjwyRWHaWm7SIOf-5KrcLAAniuA02M7",
-  "https://lh3.googleusercontent.com/ui39a-guz8tCxfSplNJGi90efcHuVjN1kv07rCRE73onkCes94lKhTRaQ5zTX-ICle2WEY8iY3XyIStiTPADqMr4QA8mm8Rh67M_Gix7-1FZ7Jyl77oo5w-KXqGp7w0rxle6LaqDS4ztr6dg"
+  "https://lh3.googleusercontent.com/ui39a-guz8tCxfSplNJGi90efcHuVjN1kv07rCRE73onkCes94lKhTRaQ5zTX-ICle2WEY8iY3XyIStiTPADqMr4QA8mm8Rh67M_Gix7-1FZ7Jyl77oo5w-KXqGp7w0rxle6LaqDS4ztr6dg",
 ];
 
 router.get("/contest", async (req, res) => {
@@ -183,14 +183,17 @@ router.get("/contest", async (req, res) => {
             results[r] = {
               name: results[r].name,
               steps: steps,
-              href: results[r].href
-            }
+              href: results[r].href,
+            };
           } else {
+            const imageIndex = parseInt(r.replace("#", "")) - 1;
+            if (imageIndex > 98) imageIndex --;
+
             results[r] = {
-                "name": r,
-                "steps": 1,
-                "href": contestImages[parseInt(r.replace('#',''))-1]   
-            }
+              name: r,
+              steps: 1,
+              href: contestImages[imageIndex],
+            };
           }
         });
       }
