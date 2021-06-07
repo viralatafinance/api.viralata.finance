@@ -240,14 +240,6 @@ router.get("/nft/:id", async (req, res) => {
   return res.json(req.params.id);
 });
 
-router.get("/vcr/cmw.json", function (req, res) {
-  res.sendFile(require.resolve("./media/vcr/cmw.json"));
-});
-
-router.get("/vcr/cmw.jpg", function (req, res) {
-  res.sendFile(require.resolve("./media/vcr/cmw.jpg"));
-});
-
 app.use(bodyParser.json());
 app.use(cors());
 app.use(limiter);
