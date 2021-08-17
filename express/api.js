@@ -72,6 +72,31 @@ router.get("/price", async (req, res) => {
     return res.json([{ symbol: "REAU", price_usd: reauPrice.toFixed(20), last_updated: new Date().getTime() }]);
 });
 
+
+router.get("/auroPrice", async (req, res) => {
+  let viralataContract = new web3.eth.Contract(abi, "0x8d9A79314c4e09A7c53C124195cAeB8B89F4879D");
+  let lpContract = new web3.eth.Contract(lpAbi, "0xBD28311f4AAF9bdCFB02554c8eD26e5dBe13884E");
+
+  const totalSupplyString = await viralataContract.methods.totalSupply().call();
+  const deadSupplyString = await viralataContract.methods.balanceOf("0x000000000000000000000000000000000000dead").call();
+
+  const auroReserves = await lpContract.methods.getReserves().call();
+
+  const totalSupply = new BN(totalSupplyString);
+  const deadSupply = new BN(deadSupplyString);
+  const circSupply = totalSupply.sub(deadSupply);
+
+  const auroPrice = (Number(auroReserves._reserve1) / Number(auroReserves._reserve0));
+
+  // console.log(`Total Supply: ${numeral(web3.utils.fromWei(totalSupply, "Gwei")).format("0.0a")}`);
+  // console.log(`Total Burned : ${numeral(web3.utils.fromWei(deadSupply, "Gwei")).format("0.0a")}`);
+  // console.log(`Circulating Supply: ${numeral(web3.utils.fromWei(circSupply, "Gwei")).format("0.0000a")}`);
+  // console.log(`Price per Million: ${numeral(reauPrice * mi).format("$0,0.000000")}`);
+  // console.log(`Market Cap:  ${numeral(web3.utils.fromWei(circSupply, "Gwei") * reauPrice).format("$0.0000a")}`);
+
+  return res.json([{ symbol: "AURO", price_usd: auroPrice.toFixed(20), last_updated: new Date().getTime() }]);
+});
+
 app.use(bodyParser.json());
 app.use(cors());
 app.use(limiter);
