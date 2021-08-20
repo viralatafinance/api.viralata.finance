@@ -43,33 +43,52 @@ const lpAbi = JSON.parse(
 const client = new faunadb.Client({ secret: FAUNA_DB });
 
 router.get("/price", async (req, res) => {
-    let viralataContract = new web3.eth.Contract(abi, "0x4c79b8c9cB0BD62B047880603a9DEcf36dE28344");
-    let lpContract = new web3.eth.Contract(lpAbi, "0x7Cc956136C36e7Fbd6B74C07d9E40Eccd3779249");
-    let bnbBusdContract = new web3.eth.Contract(lpAbi, "0x1B96B92314C44b159149f7E0303511fB2Fc4774f");
 
-    const totalSupplyString = await viralataContract.methods.totalSupply().call();
-    const deadSupplyString = await viralataContract.methods.balanceOf("0x000000000000000000000000000000000000dead").call();
+    let filter = [];
 
-    const bnbReserves = await bnbBusdContract.methods.getReserves().call();
-    const reauReserves = await lpContract.methods.getReserves().call();
+    if (req.query.token) {
+        filter = req.query.token.split(",").map((token => token.toLowerCase()));
+    }
 
-    const totalSupply = new BN(totalSupplyString);
-    const deadSupply = new BN(deadSupplyString);
-    const circSupply = totalSupply.sub(deadSupply);
+    let lpContract;
 
-    const bnbPrice = Number(bnbReserves._reserve1) / Number(bnbReserves._reserve0);
-    const reauPriceBnb = (Number(reauReserves._reserve1) / Number(reauReserves._reserve0)) * 0.000000001;
-    const reauPrice = reauPriceBnb * bnbPrice;
-    const mi = 1000000;
-    const k = 1000;
+    let result = [];
 
-    // console.log(`Total Supply: ${numeral(web3.utils.fromWei(totalSupply, "Gwei")).format("0.0a")}`);
-    // console.log(`Total Burned : ${numeral(web3.utils.fromWei(deadSupply, "Gwei")).format("0.0a")}`);
-    // console.log(`Circulating Supply: ${numeral(web3.utils.fromWei(circSupply, "Gwei")).format("0.0000a")}`);
-    // console.log(`Price per Million: ${numeral(reauPrice * mi).format("$0,0.000000")}`);
-    // console.log(`Market Cap:  ${numeral(web3.utils.fromWei(circSupply, "Gwei") * reauPrice).format("$0.0000a")}`);
+    // AURO-USD
+    if (!filter.length || filter.includes("auro")) {
+        lpContract = new web3.eth.Contract(lpAbi, "0xBD28311f4AAF9bdCFB02554c8eD26e5dBe13884E");
 
-    return res.json([{ symbol: "REAU", price_usd: reauPrice.toFixed(20), last_updated: new Date().getTime() }]);
+        const auroReserves = await lpContract.methods.getReserves().call();
+
+        const auroPrice = (Number(auroReserves._reserve1) / Number(auroReserves._reserve0));
+
+        result.push({
+            symbol: "AURO",
+            price_usd: auroPrice.toFixed(20),
+            last_updated: new Date().getTime()
+        });
+    }
+
+    // REAU-USD
+    if (!filter.length || filter.includes("reau")) {
+        lpContract = new web3.eth.Contract(lpAbi, "0x7Cc956136C36e7Fbd6B74C07d9E40Eccd3779249");
+        let bnbBusdContract = new web3.eth.Contract(lpAbi, "0x1B96B92314C44b159149f7E0303511fB2Fc4774f");
+
+        const bnbReserves = await bnbBusdContract.methods.getReserves().call();
+        const reauReserves = await lpContract.methods.getReserves().call();
+
+        const bnbPrice = Number(bnbReserves._reserve1) / Number(bnbReserves._reserve0);
+        const reauPriceBnb = (Number(reauReserves._reserve1) / Number(reauReserves._reserve0)) * 0.000000001;
+        const reauPrice = reauPriceBnb * bnbPrice;
+
+        result.push({
+            symbol: "REAU",
+            price_usd: reauPrice.toFixed(20),
+            last_updated: new Date().getTime()
+        });
+    }
+
+    return res.json(result);
 });
 
 
